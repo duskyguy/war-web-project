@@ -1,47 +1,43 @@
-pipeline {
+pipeline{
     agent any
-    tools {
-        maven 'Maven363'
-    }
-    options {
-        timeout(10)
-        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '5')
-    }
-    stages {
-        stage('Build') {
-            steps {
-                sh "mvn clean install"
+
+    stages{
+        stage('clean'){
+            steps
+            {   
+                bat 'C:/Build/apache-maven-3.9.8/bin/mvn clean'
             }
         }
-        stage('upload artifact to nexus') {
-            steps {
-                nexusArtifactUploader artifacts: [
-                    [
-                        artifactId: 'wwp', 
-                        classifier: '', 
-                        file: 'target/wwp-1.0.0.war', 
-                        type: 'war'
-                    ]
-                ], 
-                    credentialsId: 'nexus3', 
-                    groupId: 'koddas.web.war', 
-                    nexusUrl: '10.0.0.91:8081', 
-                    nexusVersion: 'nexus3', 
-                    protocol: 'http', 
-                    repository: 'samplerepo', 
-                    version: '1.0.0'
+ stage('validate'){
+            steps
+            {   
+                bat 'C:/Build/apache-maven-3.9.8/bin/mvn validate'
             }
         }
-    }
-    post {
-        always{
-            deleteDir()
+stage('compile'){
+            steps
+            {   
+                bat 'C:/Build/apache-maven-3.9.8/bin/mvn compile'
+            }
         }
-        failure {
-            echo "sendmail -s mvn build failed receipients@my.com"
+stage('test'){
+            steps
+            {   
+                bat 'C:/Build/apache-maven-3.9.8/bin/mvn test'
+            }
         }
-        success {
-            echo "The job is successful"
+stage('package'){
+            steps
+            {   
+                bat 'C:/Build/apache-maven-3.9.8/bin/mvn package'
+            }
         }
+stage('install'){
+            steps
+            {   
+                bat 'C:/Build/apache-maven-3.9.8/bin/mvn install'
+            }
+        }
+
     }
 }
